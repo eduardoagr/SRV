@@ -22,14 +22,14 @@ public class Robot
     {
         get; set;
     }
-    private readonly Mars _mars;
+    private readonly Mars mars;
 
     public Robot(int x, int y, Orientation orientation, Mars mars)
     {
         X = x;
         Y = y;
         Orientation = orientation;
-        _mars = mars;
+        this.mars = mars;
     }
 
     public void ExecuteCommand(Command command)
@@ -59,10 +59,10 @@ public class Robot
 
         if (OutOfGrid(nextPosition.x, nextPosition.y))
         {
-            if (!_mars.IsScented(X, Y))
+            if (!mars.IsScented(X, Y))
             {
                 IsLost = true;
-                _mars.AddCordinates(X, Y);
+                mars.AddCordinates(X, Y);
             }
             //ignore command if it is scented
         }
@@ -75,9 +75,6 @@ public class Robot
 
     private void RotateClockwise()
     {
-        //since the ints are backed by our
-        //enums are in order
-        //adding one is equivalent to rotating 90' clockwise
         if (Orientation == Orientation.west)
         {
             Orientation = Orientation.north;
@@ -129,6 +126,6 @@ public class Robot
 
     private bool OutOfGrid(int x, int y)
     {
-        return x > _mars.xbound || x < 0 || y > _mars.yBound || y < 0;
+        return x > mars.xbound || x < 0 || y > mars.yBound || y < 0;
     }
 }
