@@ -1,51 +1,66 @@
-﻿using SRV.Class;
+﻿using System.Text;
+
+using SRV.Class;
+using SRV.Enums;
+using SRV.RobotInstructions;
 
 namespace SRV;
 internal class Program
 {
-    int[,]? grid;
-
-    Robot? robot;
-
-    char[][] inputStream = new char[][] {
-            new char[] { '5', '3'},
-            new char[] { '1','1','E'},
-            new char[] { 'R','F','R','F','R','F','R','F' }
-        };
-
-    private static void Main(string[] args)
+    static void Main(string[] args)
     {
+        var input = UserInput.GetInput();
+        List<Robot> robots;
+        List<List<Command>> commands;
+        UserInput.GetRobotAndConmnds(input, out robots,
+                       out commands);
 
-    }
-
-    void CreateGrid(int x, int y)
-    {
-        grid = new int[x, y];
-    }
-
-    void PlaceRobot(int row, int column,
-        char orientation)
-    {
-        robot = new Robot
+        var Station = new Station(robots);
+        var maxRobots = Station.robots.Count;
+        for (var i = 0; i < maxRobots; ++i)
         {
-            row = row,
-            column = column,
-            orientation = orientation
-        };
+            Station.TransmitCommands(i, commands[i]);
+        }
 
+        var robotReport = ScreenHelper.GetRobotReport(robots);
+        Console.Write(robotReport);
+
+        Console.Write("Press any key to exit...");
+        Console.ReadKey();
+    }
+}
+
+internal class ScreenHelper
+{
+    public static string GetRobotReport(List<Robot> robots)
+    {
+        var s = new StringBuilder();
+
+        foreach (var robot in robots)
+        {
+            var line = $"{robot.X} {robot.Y} {GetOrientation(robot.Orientation)}";
+            if (robot.IsLost)
+                line += " LOST";
+            s.AppendLine(line);
+        }
+
+        return s.ToString();
     }
 
-    void RobotMovement()
+    private static char GetOrientation(Orientation orientation)
     {
-    }
-
-    void ParseInput()
-    {
-        CreateGrid(Convert.ToInt32(inputStream[0][0]),
-            Convert.ToInt32(inputStream[0][1]));
-
-        PlaceRobot(Convert.ToInt32(inputStream[1][0]),
-             Convert.ToInt32(inputStream[1][1]),
-            inputStream[1][2]);
+        switch (orientation)
+        {
+            case Orientation.north:
+                return 'N';
+            case Orientation.south:
+                return 'S';
+            case Orientation.east:
+                return 'E';
+            case Orientation.west:
+                return 'W';
+            default:
+                throw new ArgumentException($"orientation {orientation} has no defined char equivalent");
+        }
     }
 }
